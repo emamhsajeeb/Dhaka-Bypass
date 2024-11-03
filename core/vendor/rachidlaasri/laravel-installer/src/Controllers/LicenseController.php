@@ -33,37 +33,37 @@ class LicenseController extends Controller
         ]);
 
         $itemid = 24646161;
-        $itemname = 'PlusAgency';
+        $itemname = 'DhakaBypass';
         $emailCollectorApi = 'https://kreativdev.com/emailcollector/api/collect';
 
 
         try {
             $requestPurchaseCode = $request->purchase_code; // Get the purchase code from the URL parameter
-            
+
             $headers = [
                 'Content-Type: application/json',
                 'Accept: application/json',
                 'Authorization: Bearer d3eCIKWsFeVT1hoMjY7wtZlZMn0tgEO9'
             ];
-            
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'https://api.envato.com/v3/market/author/sale?code=' . urlencode($requestPurchaseCode));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            
+
             $responseBody = curl_exec($ch);
-            
+
             if (curl_errno($ch)) {
                 echo 'Error: ' . curl_error($ch);
                 exit;
             }
-            
+
             curl_close($ch);
-            
+
             $formattedRes = json_decode($responseBody, true);
-            
+
             $buyerUsername = $formattedRes['buyer'];
-            
+
             if ($request->username != $buyerUsername || $itemid != $formattedRes['item']['id']) {
                 Session::flash('license_error', 'Username / Purchase code didn\'t match for this item!');
                 return redirect()->back();
@@ -81,11 +81,11 @@ class LicenseController extends Controller
                 'item_id' => $itemid,
                 'url' => url('/'),
                 'collector_key' => 'rakoombaa',
-                'purchase_code' => $request->purchase_code 
+                'purchase_code' => $request->purchase_code
             ];
-            
+
             $curl = curl_init();
-            
+
             curl_setopt_array($curl, [
                 CURLOPT_URL => $emailCollectorApi,
                 CURLOPT_RETURNTRANSFER => true,
@@ -96,15 +96,15 @@ class LicenseController extends Controller
                     'Content-Type: application/x-www-form-urlencoded'
                 ],
             ]);
-            
+
             $response = curl_exec($curl);
-            
+
             if (curl_errno($curl)) {
                 echo 'Error: ' . curl_error($curl);
             } else {
                 echo $response;
             }
-            
+
             curl_close($curl);
 
             Session::flash('license_success', 'Your license is verified successfully!');
@@ -113,7 +113,7 @@ class LicenseController extends Controller
             dd($e->getMessage());
             Session::flash('license_error', "Your purchase code is not correct or Your server is missing some extension, in that case please create a support ticket here https://kreativdev.freshdesk.com/");
             return redirect()->back();
-        }        
+        }
 
     }
 }
